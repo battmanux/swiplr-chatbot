@@ -1,0 +1,187 @@
+---
+title: "DT495 - Digital Twin -Refacto langue française"
+output:
+  html_document: 
+    number_sections: yes
+    toc: yes
+    highlight: pygments
+  pdf_document: 
+    fig_caption: yes
+    toc: yes
+    highlight: pygments
+  word_document: 
+    number_sections: yes
+    toc: yes
+    highlight: pygments
+---
+
+
+# Structure Possible
+```{r}
+library(swiplr)
+options(swipl_bin_folder = "/usr/local/bin/")
+```
+
+
+
+```{prolog, quickfix}
+
+domain(A,B,1) :- domain(A,B).
+nbr(A,B,V,V) :- nbr(A,B).
+attr(A,B,V,V) :- attr(A,B).
+
+```
+
+```{prolog, base}
+:- dynamic fact/3.
+:- discontiguous fact/3.
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+fact(attr(class_animal, poule), bob, 0).
+fact(attr(localisé_à, de(bob, cuisine)), bob, 0).
+fact(attr(class_lieu, cuisine), de(bob,cuisine), 0).
+fact(attr(class_lieu, école), de(bob,école), _).
+fact(attr(class_lieu, entrée), de(bob,entrée), _).
+fact(attr(class_lieu, NOM_LIEU), de(bob, NOM_LIEU), 0) :- attr(class_lieu, NOM_LIEU).
+
+%:- close_world.
+
+%:- trace(possible_action).
+%:- trace(fact).
+?- fact(attr(class_lieu,CLASS), ENTITY,   T1)
+```
+
+
+Query places
+
+```{prolog, q1}
+{{{swiplr_chunks.base}}}
+
+?- fact(attr(class_lieu, CLASS), TO,   T1)
+```
+
+```{prolog, mode="query"}
+{{{swiplr_chunks.base}}}
+
+
+%?- fact(attr(class_lieu, L), M, S).
+%?- attr(CLASS, chien).
+%?- fact(attr(CLASS, VALUE), WHAT, WHEN)
+%?- fact(attr(A), WHAT, WHEN).
+%?- fact(attr(A, B), member(WHO), Y).
+%?- possible_action(ACTION, 0, T1, ASSERT, CONSUMPTION).
+?- START_=0, possible_action_chain( ACTION, START_, STOP_, 3, ASSERT_LIST_,\
+                                        [fact(attr(localisé_à, de(bob,école)), bob, STOP_)],\
+                                        [time(10)], LEFT_OVER_)
+```
+
+```{prolog, mode="query", maxnsols=1}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+%?- p(fact(attr(adj_couleur, bleu), de(oiseau, patte, 1), 0), present, PROB, W, [] ), show(W, Z)
+%?- show(W, "la patte de l oiseau a la couleur bleue")
+%?- look("la couleur de la patte de la poule est bleue", LIST)
+%?- atomic_list_concat(LIST, ' ', "la patte de l oiseau a la couleur bleue") 
+?- look("les pattes des oiseaux ont les couleurs vertes", W_), p(fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
+```
+
+```{prolog, mode="query", maxnsols=1}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+?- look("les pattes des poules avaient les couleurs vertes", W_), p(fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
+?- look("la patte de la poule avait la couleur bleue", W_), p(fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
+```
+
+
+```{prolog, mode="query", maxnsols=10}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+?- p(fact(attr(adj_couleur, COLOR), de(chien, WHAT, 1), 0), present, probable, W_, [] ), show(W_, SENTENCE)
+```
+
+
+```{prolog}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+?- p(fact(COMMENT, de(oiseau, patte, 1), 0), present, PROB, W, [])
+
+```
+
+```{prolog}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+
+?- p(fact(attr(adj_couleur, jaune), de(oiseau, patte, 1), 0), present, probable, LIST, []), LIST=[la, patte, de, le, oiseau, a, la, couleur, jaune]
+?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST)
+?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST), show(LIST, OUT)
+?- IN="la poulle est grande", look(IN, LIST), show(LIST, OUT)
+
+```
+
+```{prolog, list, verbose=T, maxnsols=3}
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+%?- text_to_string("ee dzd", OUT)
+%?- IN="la société A a le service B", look(IN, LIST)
+?- p(fact(attr(A, X), de(travail, service, 1), 0), present, PROB, W_, [] ), show(W_, Z)
+
+```
+
+
+
+```{prolog, verbose=T, maxnsols=130}
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+%:- trace(np).
+
+%?- re_match(" l'(e|i|a|o|ho)", "STRING0")
+
+%?- p(fact(attr(adj_couleur, bleu), de(poule, patte, 1), 0), TEMPS, PROB, [la, couleur, de, la, patte, de, la, poule, est, bleue], [])
+%?- p(fact(COMMENT, de(poule, MEMBRE, 1), 0), TEMPS, PROB, [la, couleur, de, la, patte, de, la, poule, est, jaune], [])
+%?- p(fact(COMMENT, de(poule, MEMBRE, 1), 0), TEMPS, PROB, [la, patte, de, la, poule, a, la, couleur, jaune], [])
+%?- p(fact(attr(adj_comportement_1, COMP), de(poule, MEMBRE, 1), 0), present, PROB, W, [])
+%?-  profile(np(attr(X, Y), A, GENRE, [le, chien], []))
+%?- p(fact(COMMENT, de(QUOI, patte, 1), 0), TEMPS, PROB, [la, couleur, de, la, patte, de, la, poule, est, jaune], [])
+?- p(fact(COMMENT, de(QUOI, MEMBRE, 1), 0), TEMPS, PROB, [la, couleur, de, la, patte, de, la, poule, est, jaune], [])
+
+%?- split_string("ll dd", " ", "", OUT)
+%?- attr(adj_couleur, ADJ)
+%?- p(fact(attr(adj_couleur, X), de(poule, patte, 1), 0), present, PROB, W, [])
+```
+
+
+```{prolog, verbose=T, maxnsols=130}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+
+%?- np(attr(VAR, bleu), DET, GEN, WORDS, [])
+%?- attr(CLASS, homme).
+%?- attr(CLASS, bras).
+%?- np(de(oiseau, patte), DEF, GEN, WORDS, []), show(WORDS, SENT)
+%?- np(attr(adj_couleur , COULEUR), DEF, GEN, WORDS, []), show(WORDS, SENT)
+%?- np(attr(adj_couleur), DET, GEN, W,  [])
+%?- p(fact(attr(X), de(Y, Z), 1), A, B, W, [])
+%?- p(fact(attr(adj_couleur, bleu), de(oiseau, patte, 1), 0), present, PROB, W, [] ), show(W, Z)
+%?- p(fact(attr(A, jaune), de(oiseau, patte, 1), 0), present, PROB, W, [] )
+%?- p(FACT, WHEN, PROB, [les, pattes, de, le, oiseau, sont, C], [])
+?- p(fact(attr(A, jaune), de(oiseau, patte, 1), 0), TEMP, PROB, \
+     [la, patte, de, le, oiseau, avait, la, couleur, jaune], [] )
+
+```
+
+
