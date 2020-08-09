@@ -58,10 +58,12 @@ adjposs(p3fs, nfp) --> [mes].
 
 :- [names_fr].
 
-word(X, MS, nms) :- adj(X, [MS, _ , _ , _ ]).
-word(X, MP, nmp) :- adj(X, [_ , MP, _ , _ ]).
-word(X, FS, nfs) :- adj(X, [_ , _ , FS, _ ]).
-word(X, FP, nfp) :- adj(X, [_ , _ , _ , FP]).
+word(X, ELEM, POS) :- adj(X, LIST), nth1(INDEX, LIST, ELEM), (
+  (INDEX=1, POS=nms);
+  (INDEX=2, POS=nmp);
+  (INDEX=3, POS=nfs);
+  (INDEX=4, POS=nfp)
+  ).
 
 word(X, MS, nms) :- nm(X, [MS, _ ]).
 word(X, MP, nmp) :- nm(X, [_ , MP]).
@@ -101,6 +103,7 @@ adj(public,  [public, publics, publique, publiques]).
 adj(grec,    [grec, grecs, grecque, grecques]).
 adj(franc,   [franc, francs, franche, franches]).
 adj(violet,  [violet, violet, violette, violettes]).
+adj(gris,    [gris, gris, grise, grises]).
 adj(inquiet, [inquiet, inquiets, inquiète, inquiètes]).
 adj(frais,   [frais, frais, fraîche, fraîches]).
 adj(gras,    [gras, gras, grasse, grasses]).
@@ -117,7 +120,8 @@ adj(MOT,   [MOT, NMP, NFS, NFP]) :-
   atomic_list_concat([MOT,he],'',NFS),
   atomic_list_concat([MOT,hes],'',NFP).
   
-adj(MOT,   [MOT, MOT, NFS, NFP]) :- 
+adj(MOT,   [MOT, MOT, NFS, NFP]) :-
+  not(MOT=gris),
   is_word_type(adjectif, MOT), sub_atom(MOT, _, 1, 0, s),
   atomic_list_concat([MOT,se],'',NFS),
   atomic_list_concat([MOT,ses],'',NFP).
@@ -176,41 +180,25 @@ is_word_type(A, B, V, V) :- is_word_type(A, B).
 domain(A, B, V, V) :- domain(A, B).
 
 np(A, B, C, D, E) :- 
- np1(A, B, C, D, E);
- np2(A, B, C, D, E);
- np3(A, B, C, D, E);
- np4(A, B, C, D, E);
- np5(A, B, C, D, E);
- np6(A, B, C, D, E);
- np7(A, B, C, D, E).
+ np(_, A, B, C, D, E).
 
-np1(attr(ATTR_CLASS), DETERMINE, GENRE) --> 
+% attribute class as a name 
+np(np1,attr(ATTR_CLASS), DETERMINE, GENRE) --> 
   art(GENRE, DETERMINE),
   domain(ATTR_CLASS, _),
   n(ATTR_CLASS, NOM, GENRE),
   [NOM].
 
-%% changer thing par les hypernimes
-np2(attr(thing, ATTR_VALUE), DETERMINE, GENRE) --> 
-  art(GENRE, DETERMINE),
-  is_word_type(nom_commun,  ATTR_VALUE),
-  n(ATTR_VALUE, NOM, GENRE),
-  [NOM].
-  
-np3(attr(ATTR_CLASS, ATTR_VALUE), elipse, GENRE) --> 
-  is_word_type(adjectif,  ATTR_VALUE),
+% elipse attribute class
+np(np2,attr(ATTR_CLASS, ATTR_VALUE), elipse, GENRE) --> 
+  [ADJ],
   word(ATTR_VALUE, ADJ, GENRE),
-  attr(ATTR_CLASS, ATTR_VALUE),
-  [ADJ].
-
-np3(attr(ATTR_CLASS, ATTR_VALUE), none, GENRE) --> 
   is_word_type(adjectif,  ATTR_VALUE),
-  word(ATTR_VALUE, ADJ, GENRE),
-  attr(ATTR_CLASS, ATTR_VALUE),
-  [ADJ].
+  attr_v(ATTR_CLASS, ATTR_VALUE).
   
-np4(attr(ATTR_CLASS, ATTR_VAL), DETERMINE, GENRE) --> 
-  art(GENRE, DETERMINE), attr(ATTR_CLASS, ATTR_VAL),
+% long attributes or colors
+np(np4,attr(ATTR_CLASS, ATTR_VAL), DETERMINE, GENRE) --> 
+  art(GENRE, DETERMINE), attr_v(ATTR_CLASS, ATTR_VAL),
   is_word_type(adjectif, ATTR_VAL),
   n(ATTR_CLASS, NOM, GENRE), word(ATTR_VAL, ADJ, GENRE),
   not((
@@ -219,21 +207,24 @@ np4(attr(ATTR_CLASS, ATTR_VAL), DETERMINE, GENRE) -->
   )),
   [NOM, ADJ].
 
-np5(attr(ATTR_CLASS, ATTR_VAL), DETERMINE, GENRE) --> 
-  art(GENRE, DETERMINE), attr(ATTR_CLASS, ATTR_VAL),
+% short attributes except colors => inverted order
+np(np5,attr(ATTR_CLASS, ATTR_VAL), DETERMINE, GENRE) --> 
+  art(GENRE, DETERMINE), attr_v(ATTR_CLASS, ATTR_VAL),
   is_word_type(adjectif, ATTR_VAL),
   n(ATTR_CLASS, NOM, GENRE), word(ATTR_VAL, ADJ, GENRE),
   is_word_type(adjectif_court, ATTR_VAL),
   not(is_word_type(adjectif_couleur, ATTR_VAL)),
   [ADJ, NOM].
 
-np6(de(SUJET, MEMBRE), indef, GENRE_NOM) --> 
+% object members undef
+np(np6,de(SUJET, MEMBRE), indef, GENRE_NOM) --> 
   art(GENRE_NOM, indef),
   n(MEMBRE, NOM_MEMBRE, GENRE_NOM),
   n(SUJET, NOM_SUJET , _),
   [NOM_MEMBRE, de, NOM_SUJET].
 
-np7(de(SUJET, MEMBRE), DETERMINE, GENRE_NOM) --> 
+% object members 
+np(np7,de(SUJET, MEMBRE), DETERMINE, GENRE_NOM) --> 
   art(GENRE_NOM, DETERMINE),
   not((DETERMINE = indef)),
   [NOM_MEMBRE],
@@ -242,5 +233,11 @@ np7(de(SUJET, MEMBRE), DETERMINE, GENRE_NOM) -->
   n(SUJET, NOM_SUJET, GENRE_SUJET),
   [NOM_SUJET].
   
-  
+% subjects 
+np(np8,SUJET, DETERMINE, GENRE_SUJET) --> 
+  art(GENRE_SUJET, DETERMINE),
+  n(SUJET, NOM_SUJET, GENRE_SUJET),
+  [NOM_SUJET].
+
+
 =(A,B, V, V) :- =(A, B).

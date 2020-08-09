@@ -1,0 +1,57 @@
+---
+title: "Chatbot -Tests langue française"
+output:
+  html_document: 
+    number_sections: yes
+    toc: yes
+    highlight: pygments
+  pdf_document: 
+    fig_caption: yes
+    toc: yes
+    highlight: pygments
+  word_document: 
+    number_sections: yes
+    toc: yes
+    highlight: pygments
+---
+
+```{r}
+library(swiplr)
+options(swipl_bin_folder = "/usr/local/bin/")
+```
+
+# Tests 
+
+## missing words for domain class
+
+```{prolog, q1}
+:- [chatbot].
+
+no_word_defined_for_class(CLASS) :-
+  findall(VAR_, word(VAR_, _, _), LIST_), 
+  domain(CLASS, _),  
+  not(memberchk(CLASS, LIST_)).
+
+?- domain(adj_attention, DOMAINE)
+?- word(adj_attention, W, G)
+?- word(LABEL, attention, G)
+?- no_word_defined_for_class(CLASS)
+?- bagof(CLASS_, no_word_defined_for_class(CLASS_), LIST_), length(LIST_, MISSING_COUNT)
+```
+
+
+## missing words for attributes values
+
+```{prolog, q1}
+:- [chatbot].
+
+no_word_defined_for_class(ATTR) :-
+  findall(VAR_, word(VAR_, _, _), LIST_), 
+  attr(_, ATTR),  
+  not(memberchk(ATTR, LIST_)).
+
+?- attr(CLASS, moto)
+?- no_word_defined_for_class(ATTR)
+?- bagof(ATTR_, no_word_defined_for_class(ATTR_), LIST_), length(LIST_, MISSING_COUNT)
+
+```

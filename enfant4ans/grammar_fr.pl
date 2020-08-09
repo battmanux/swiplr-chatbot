@@ -30,42 +30,71 @@ question(fact(M, OBJECT, FACT_STEP), VAR_NAME, VAR_VALUE) -->
   M=attr(VAR_NAME, VAR_VALUE),
   fact(attr(VAR_NAME, VAR_VALUE), OBJECT, FACT_STEP), 
   [quel], 
-  verbe(etre, PERS, present), gn(attr(VAR_NAME), GENDER), nbr(PERS, GENDER),
+  verbe(etre, PERS, present), gn(attr(VAR_NAME), GENDER), nbr_v(PERS, GENDER),
   step(FACT_STEP).
 
 question(fact(M, OBJECT, FACT_STEP), VAR_NAME, VAR_VALUE) --> 
   M=attr(VAR_NAME, VAR_VALUE),
   fact(attr(VAR_NAME, VAR_VALUE), OBJECT, FACT_STEP), 
   [quel], 
-  verbe(etre, PERS, present), gn(attr(VAR_NAME), GENDER), nbr(PERS, GENDER)
+  verbe(etre, PERS, present), gn(attr(VAR_NAME), GENDER), nbr_v(PERS, GENDER)
   .
 des(S, M) :- de(S, M, -1).
 de(S, M) :- de(S, M, 1).
 de(S, M, V, V) :- de(S, M).
 
 p(A, B, C, D, E) :-
-  pA1(A, B, C, D, E);
-  pA2(A, B, C, D, E);
-  pE1(A, B, C, D, E).
+  p(_, A, B, C, D, E).
 
-pA1(fact(attr(ATTR_CLASS), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
+p(existe_sujet, fact(existe, SUJET, _), WHEN, probable) -->
+  [il,y],
+  verbe(avoir, p3ms, WHEN),
+  np(SUJET, indef, _).
+
+p(existe_membre, fact(existe, de(SUJET,MEMBRE), _), WHEN, probable) -->
+  np(SUJET, def, GENDER_SUJET),
+  nbr(PERS, GENDER_SUJET),
+  verbe(avoir, PERS, WHEN),
+  np(MEMBRE, indef, _).
+
+p(existe_membre, fact(existe, de(SUJET,MEMBRE, COUNT), _), WHEN, probable) -->
+  np(SUJET, def, GENDER_SUJET),
+  nbr(PERS, GENDER_SUJET),
+  verbe(avoir, PERS, WHEN),
+  [COUNT],
+  np(MEMBRE, none, _).
+
+
+p(a1, fact(attr(ATTR_CLASS), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
   is_word_type(nom_commun, MEMBRE), 
   np(de(SUJET, MEMBRE), SUJET_DETERMINE, GENDER),
   nbr(PERS, GENDER),
   verbe(avoir, PERS, WHEN),
   np(attr(ATTR_CLASS), SUJET_DETERMINE, GENDER).
 
-pA2(fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
+p(a2, fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
   is_word_type(nom_commun, MEMBRE),
-  attr(ATTR_CLASS, ATTR_VALUE),
+  attr_v(ATTR_CLASS, ATTR_VALUE),
   (np(de(SUJET, MEMBRE), def, GENDER); np(de(SUJET, MEMBRE), undef, GENDER)),
   nbr(PERS, GENDER),
   verbe(avoir, PERS, WHEN),
   np(attr(ATTR_CLASS, ATTR_VALUE), def, GENDER).
 
-pE1(fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
+% être explicite
+p(e1, fact(attr(ATTR_CLASS, ATTR_VALUE), SUJET, _ ), WHEN, probable) -->
+  is_word_type(nom_commun, SUJET),
+  attr_v(ATTR_CLASS, ATTR_VALUE),
+  is_word_type(adjectif,  ATTR_VALUE),
+  np(attr(ATTR_CLASS), def, GENDER_ATTR),
+  np(SUJET, poss, _),
+  nbr(PERS, GENDER_ATTR),
+  verbe(etre, PERS, WHEN),
+  word(ATTR_VALUE, M, GENDER_ATTR), [M].
+
+% être explicite
+p(e1, fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
   is_word_type(nom_commun, MEMBRE),
-  attr(ATTR_CLASS, ATTR_VALUE),
+  attr_v(ATTR_CLASS, ATTR_VALUE),
   is_word_type(adjectif,  ATTR_VALUE),
   np(attr(ATTR_CLASS), def, GENDER_ATTR),
   np(de(SUJET, MEMBRE), poss, _),
@@ -73,13 +102,23 @@ pE1(fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable
   verbe(etre, PERS, WHEN),
   word(ATTR_VALUE, M, GENDER_ATTR), [M].
 
-pE2(fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
+% être implicite
+p(e2, fact(attr(ATTR_CLASS, ATTR_VALUE), de(SUJET, MEMBRE, 1), _ ), WHEN, probable) -->
   is_word_type(nom_commun, MEMBRE),
-  attr(ATTR_CLASS, ATTR_VALUE),
   (np(de(SUJET, MEMBRE), def, GENDER); np(de(SUJET, MEMBRE), undef, GENDER)),
   nbr(PERS, GENDER),
   verbe(etre, PERS, WHEN),
-  np(attr(ATTR_CLASS, ATTR_VALUE), elipse, GENDER).
+  np(attr(ATTR_CLASS, ATTR_VALUE), elipse, GENDER),
+  attr_v(ATTR_CLASS, ATTR_VALUE).
+
+% être 
+p(e2, fact(attr(ATTR_CLASS, ATTR_VALUE), SUJET, _ ), WHEN, probable) -->
+  np(SUJET, def, GENDER),
+  nbr(PERS, GENDER),
+  verbe(etre, PERS, WHEN),
+  np(attr(ATTR_CLASS, ATTR_VALUE), elipse, GENDER),
+  is_word_type(nom_commun, SUJET),
+  attr_v(ATTR_CLASS, ATTR_VALUE).
 
 sentence(fact(VAR, OBJECT, FACT_STEP)) --> 
   fact(VAR, OBJECT, FACT_STEP), 

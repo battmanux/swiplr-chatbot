@@ -1,6 +1,8 @@
 :- discontiguous domain/2.
 :- discontiguous gender/2.
 
+domain(A,B,1) :- domain(A,B).
+
 %%===================
 %% Variables du modèle (domaine)
 

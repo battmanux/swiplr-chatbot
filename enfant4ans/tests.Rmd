@@ -26,10 +26,6 @@ options(swipl_bin_folder = "/usr/local/bin/")
 
 ```{prolog, quickfix}
 
-domain(A,B,1) :- domain(A,B).
-nbr(A,B,V,V) :- nbr(A,B).
-attr(A,B,V,V) :- attr(A,B).
-
 ```
 
 ```{prolog, base}
@@ -83,9 +79,9 @@ Query places
 
 %?- p(fact(attr(adj_couleur, bleu), de(oiseau, patte, 1), 0), present, PROB, W, [] ), show(W, Z)
 %?- show(W, "la patte de l oiseau a la couleur bleue")
-%?- look("la couleur de la patte de la poule est bleue", LIST)
+?- look("la couleur de la patte de la poule est bleue", W_), p(STRUCT, fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
 %?- atomic_list_concat(LIST, ' ', "la patte de l oiseau a la couleur bleue") 
-?- look("les pattes des oiseaux ont les couleurs vertes", W_), p(fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
+%?- look("la patte de l oiseau avait la couleur bleue", W_), p(STRUCT, fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
 ```
 
 ```{prolog, mode="query", maxnsols=1}
@@ -93,18 +89,77 @@ Query places
 :- [chatbot].
 {{{swiplr_chunks.quickfix}}}
 
-?- look("les pattes des poules avaient les couleurs vertes", W_), p(fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
+?- look("les pattes des poules avaient les couleurs vertes", W_), p(STRUCT, fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
 ?- look("la patte de la poule avait la couleur bleue", W_), p(fact(QUOI, QUI, 0), TEMPS, PROB, W_, [] )
 ```
 
 
-```{prolog, mode="query", maxnsols=10}
+```{prolog, mode="query", maxnsols=1}
 
 :- [chatbot].
 {{{swiplr_chunks.quickfix}}}
 
-?- p(fact(attr(adj_couleur, COLOR), de(chien, WHAT, 1), 0), present, probable, W_, [] ), show(W_, SENTENCE)
+%?- p(fact(attr(adj_couleur, jaune), de(chien, tête, 1), 0), present, probable, W_, [] ), show(W_, SENTENCE)
+?- look('la patte du chien est jaune', LIST_), \
+   p(fact(attr(CLASS, ATTR), de(chien, MEMBER, 1), 0), present, probable, LIST_, [] )
+%   p(fact(QUOI, QUI, 0), TEMPS, PROB, LIST_, [] )
 ```
+
+Verbe être sur un attribut explicite
+
+```{prolog, maxnsols=1}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+?- p(e1,fact(COMMENT, de(oiseau, patte, 1), 0), present, PROB, W_, []), show(W_, OUT)
+?- look('la couleur de la patte du chien est jaune', LIST_), p(e1,fact(COMMENT, de(chien, patte, 1), 0), present, PROB, LIST_, [])
+```
+
+
+Verbe être sur un attribut implicite
+
+```{prolog, maxnsols=10, mode='query'}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+%?- p(e2,fact(attr(CLASS,jaune), de(oiseau, patte, 1), 0), present, PROB_, W_, []), show(W_, OUT)
+?- look('la patte du chien est jaune', LIST_), p(e2,fact(COMMENT, de(chien, patte, 1), 0), present, PROB_, LIST_, [])
+?- look('la patte du chien est jaune', LIST_), p(e2,fact(attr(CLASS, ATTR), de(SUJET, MEMBRE, 1), 0), present, PROB_, LIST_, [])
+?- p(e2,fact(attr(CLASS,jaune), de(chien, patte, 1), 0), present, P, LIST, [])
+?- look("l'oiseau est jaune", LIST_), p(e2,fact(COMMENT, SUJET, 0), present, PROB_, LIST_, [])
+
+```
+
+
+```{prolog, mode="query"}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+%?- p(C,fact(attr(CLASS, grand), de(chien, MEMBER, 1), 0), present, PROB_, LIST_, []), show(LIST_, OUT)
+?- look("la chienne est grise", LIST_), p(e2, fact(COMMENT, SUJET, 0), TIME, PROB_, LIST_, [])
+%?- np(np8, chien, DETERMINE, GENDER, LIST_, []), show(LIST_, OUT)
+%?- p(e2, fact(attr(ATTR_CLASS, grand), chien, 0), WHEN, probable, LIST, [])
+?- p(e2, fact(attr(ATTR_CLASS, gris), chien, 0), present, probable, LIST, [])
+%?- word(X, violettes, B)
+%?- np(np2, B, C, D, [bleru],[])
+%?- ADJ=bleu, word(ATTR_VALUE, ADJ, GENRE), is_word_type(adjectif,  ATTR_VALUE), attr(ATTR_CLASS, ATTR_VALUE)
+```
+
+
+
+
+```{prolog, maxnsols=150}
+
+:- [chatbot].
+{{{swiplr_chunks.quickfix}}}
+
+?- p(fact(attr(CLASS, grand), de(oiseau, patte, 1), 0), present, probable, W_, []), show(W_, OUT)
+?- attr(A, grand)
+```
+
 
 
 ```{prolog}
@@ -112,7 +167,11 @@ Query places
 :- [chatbot].
 {{{swiplr_chunks.quickfix}}}
 
-?- p(fact(COMMENT, de(oiseau, patte, 1), 0), present, PROB, W, [])
+
+%?- p(fact(attr(adj_couleur, jaune), de(oiseau, patte, 1), 0), present, probable, LIST, []), LIST=[la, patte, de, le, oiseau, a, la, couleur, jaune]
+?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST_), show(LIST_, OUT)
+?- IN="la poulle est grande", look(IN, LIST_), show(LIST_, OUT)
+?- IN="la patte de la poule est grande", look(IN, LIST_), show(LIST_, OUT)
 
 ```
 
@@ -121,11 +180,15 @@ Query places
 :- [chatbot].
 {{{swiplr_chunks.quickfix}}}
 
+tr(CLASS, ATTR, ENTITY, MEMBER, LIST) :- 
+  p(fact(attr(CLASS, ATTR), 
+         de(ENTITY, MEMBER, 1), 0), 
+    present, probable, LIST, []).
 
-?- p(fact(attr(adj_couleur, jaune), de(oiseau, patte, 1), 0), present, probable, LIST, []), LIST=[la, patte, de, le, oiseau, a, la, couleur, jaune]
-?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST)
-?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST), show(LIST, OUT)
-?- IN="la poulle est grande", look(IN, LIST), show(LIST, OUT)
+%?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST), tr(CLASS, ATTR, ENTITY, MEMBER, LIST) 
+?- IN="la patte de la poule est grande", look(IN, LIST), tr(CLASS, ATTR, ENTITY, MEMBER, LIST)
+%?- IN="la patte de l'oiseau a la couleur jaune", look(IN, LIST), show(LIST, OUT)
+%?- IN="la poulle est grande", look(IN, LIST), show(LIST, OUT)
 
 ```
 
@@ -133,9 +196,8 @@ Query places
 :- [chatbot].
 {{{swiplr_chunks.quickfix}}}
 
-%?- text_to_string("ee dzd", OUT)
 %?- IN="la société A a le service B", look(IN, LIST)
-?- p(fact(attr(A, X), de(travail, service, 1), 0), present, PROB, W_, [] ), show(W_, Z)
+?- p(fact(attr(A, B), de(C, D, 1), 0), present, PROB, W_, [] ), show(W_, Z)
 
 ```
 
@@ -183,5 +245,98 @@ Query places
      [la, patte, de, le, oiseau, avait, la, couleur, jaune], [] )
 
 ```
+
+
+# Démo boutique 
+
+## Comment présenter les data sans passer par une structuration en tableau
+
+L'idée est de faire une représentation type objet sans imposer la contrainte de 
+designer le système avant de l'implémenter
+
+**un chien avec des pattes en objet**
+
+```{prolog, label=data}
+% il y a des faits: choses que l'on observe
+% fact(QUOI, SUR_QUEL_OBJET, QUAND).
+
+% SUR_QUEL_OBJET représente des éléments du monde physique. On peu les toucher et/les assembler
+% ex: le chien, le ventre, une tête, les 4 pattes => on peu les assembler
+% les SUR_QUEL_OBJET peuvent être structurés en catégories : animaux => chien, chat, ...
+
+% QUOI représente des attributs culturels qui permettent au humains de décrire des groupes
+% gris, poilu, grand, sympatque, ...
+% les QUOI peuvent être structurés en catégories : couleurs => blanc, gris, jaune, ...
+
+% le QUAND décrit un ordre chronologique d'étape. Le QUAND=1 est vrai avant le QUAND=2
+
+fact(attr(lieu, boutique), personne, 1).
+fact(attr(lieu, jardin), personne, 2).
+fact(attr(vitesse, 40),           de(police, moto, 2), 3).
+fact(attr(lieu, boutique),        de(police, moto), 1).
+fact(attr(lieu, boutique),        de(police, velo), 1).
+fact(attr(lieu, jardin), de(police, velo), 1).
+fact(attr(vmax, 140),        de(police, moto), 1).
+fact(attr(vmax, 40), de(police, velo), 1).
+
+fact(attr(en_vacance, oui), de(P, velo), STEP) :- 
+  fact(attr(lieu, boutique), de(P, velo), STEP).
+
+?- fact(attr(CLASS, VALUE), QUI, QUAND)
+```
+
+```{r}
+```
+
+
+```{r}
+knitr::kable(table_query("{{{ swiplr_chunks.data }}}", " fact(attr(COLUMN_HEADER, CELL ), de(arnaud, ENTITY) , 1)"))
+
+```
+
+
+
+
+```{prolog, verbose=T, maxnsols=100}
+{{{swiplr_chunks.data}}}
+
+:- [chatbot].
+
+?- np(attr(CLASS, VAL), def, GENRE, MOTS_, []), show(MOTS_, OUT)
+%?- fact(attr(lieu, LIEU), de(QUI, OBJECT), 1)
+%?- p(e2,fact(attr(adj_couleur, COULEUR), de(police, patte, 1), 1), TEMPS, probable, MOTS_, []), show(MOTS_, OUT)
+%?- look("les pattes de la police sont grises",MOTS), p(e2,fact(attr(COL, VAL), de(OBJ, MEMBRE, 1), 1), TEMPS, PROBA, MOTS, [])
+%?- p(fact(attr(C, V), de(OBJ, M, 1), STEP), present, probable, M, [])
+%?- p(fact(attr(X, jardin), de(police, patte, 1), 0), TEMPS, PROB, LISST, [])
+```
+
+
+
+
+```{prolog, verbose=T, maxnsols=100}
+{{{swiplr_chunks.data}}}
+
+:- [chatbot].
+
+?- np(X,de(arbre,branche), A,B,W,[])
+?- p(X,fact(existe, arbre, 0), present, probable, W, [])
+?- p(X,fact(existe, branche, 0), present, probable, W, [])
+?- p(X,fact(existe, de(arbre,branche), 0), present, probable, W_, []), show(W_, OUT)
+?- p(X,fact(existe, de(arbre,branche,5), 0), present, probable, W_, []), show(W_, OUT)
+```
+
+
+numération:
+- 0 : aucun
+- n1 : un/une (indef)
+- n2 : deux   (indef)
+- n...        (indef)
+- x1 : la première (def)
+- x2 : la deuxième (def)
+- x...             (def)
+- xx : un/une/l'un/l'une (indef)
+- nn : plusieurs, des, certaines (indef)
+- all : toutes 
+
 
 

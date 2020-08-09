@@ -1,0 +1,138 @@
+---
+title: "Chatbot -Tests langue française"
+output:
+  html_document: 
+    number_sections: yes
+    toc: yes
+    highlight: pygments
+  pdf_document: 
+    fig_caption: yes
+    toc: yes
+    highlight: pygments
+  word_document: 
+    number_sections: yes
+    toc: yes
+    highlight: pygments
+---
+
+```{r}
+library(swiplr)
+options(swipl_bin_folder = "/usr/local/bin/")
+```
+
+# Quel est mon animal
+
+```{prolog, label=data, verbose=T}
+:- discontiguous domain/2.
+:- multifile domain/2.
+:- discontiguous word/3.
+:- multifile word/3.
+:- discontiguous np/6.
+:- multifile np/6.
+:- discontiguous is_word_type/2.
+:- multifile is_word_type/2.
+:- discontiguous adj/2.
+:- multifile adj/2.
+
+%:- [chatbot].
+:- multifile fact/3.
+:- multifile attr/2.
+:- multifile nm/2.
+:- multifile nf/2.
+
+% Core predicates
+:- [core].
+:- [vocabulary_fr].
+:- [grammar_fr].
+:- [conjugation_fr].
+
+domain(A,B,1) :- domain(A,B).
+
+domain(type_peau, [poile, peau, plume]).
+domain(type_cri,  [miaule, aboie]).
+domain(nb_patte,  [0, 2, 4, 6, 8, beaucoup]).
+
+adj(poile, [poilu, poilue, poilus, poilues]).
+adj(peau,  [à_peau_lisse, à_peau_lisse, à_peau_lisse, à_peau_lisse]).
+adj(plume,  [à_plume, à_plume, à_plumes, à_plumes]).
+
+nm(chat,   [chat, chats]).
+nf(mygale, [mygale, mygales]).
+is_word_type(nom_commun, mygale).
+is_word_type(nom_commun, chat).
+
+%np(np9, de(QUI, QUOI, NB), elipse, GENRE)   --> 
+%  attr_v(nb_patte, 0), word(0, MOT, nfs), [MOT, patte].
+%np(np9, attr(nb_patte, X),        elipse, nfp ) --> 
+%  attr_v(nb_patte, X), not(X=beaucoup), word(X, MOT, nfp), [MOT, pattes].
+%np(np9, attr(nb_patte, beaucoup), elipse, nfp ) --> 
+%  [beaucoup, de, pattes].
+
+word(0, aucun, nms).
+word(0, aucune, nfs).
+word(2, deux, _).
+word(4, quatre, _).
+word(6, six, _).
+word(8, huit, _).
+word(beaucoup, beaucoup, _).
+
+fact(composition, de(arachnide, patte, 8), 0).
+
+fact(  composition, de(mygale   , C, N), 0) :- 
+  fact(composition, de(arachnide, C, N), 0).
+
+fact(attr(type_peau,poile), chat, 0).
+fact(attr(nb_patte,4),      chat, 0).
+fact(attr(type_cri,miaule), chat, 0).
+
+fact(A,B) :- fact(A,B,0).
+
+%?- fact(attr(nb_patte, 8), mygale, C)
+%?- np(attr(nb_patte, NB), DET, GENDER, W, [])
+```
+
+```{prolog, maxnsols=20}
+
+{{{swiplr_chunks.data}}}
+
+?- p(fact(existe, chat, 0), A, B, W, [])
+```
+
+# Tests 
+
+
+
+## missing words for domain class
+
+
+```{prolog, q1}
+:- [chatbot].
+
+no_word_defined_for_class(CLASS) :-
+  findall(VAR_, word(VAR_, _, _), LIST_), 
+  domain(CLASS, _),  
+  not(memberchk(CLASS, LIST_)).
+
+?- domain(adj_attention, DOMAINE)
+?- word(adj_attention, W, G)
+?- word(LABEL, attention, G)
+?- no_word_defined_for_class(CLASS)
+?- bagof(CLASS_, no_word_defined_for_class(CLASS_), LIST_), length(LIST_, MISSING_COUNT)
+```
+
+
+## missing words for attributes values
+
+```{prolog, q1}
+:- [chatbot].
+
+no_word_defined_for_class(ATTR) :-
+  findall(VAR_, word(VAR_, _, _), LIST_), 
+  attr(_, ATTR),  
+  not(memberchk(ATTR, LIST_)).
+
+?- attr(CLASS, moto)
+?- no_word_defined_for_class(ATTR)
+?- bagof(ATTR_, no_word_defined_for_class(ATTR_), LIST_), length(LIST_, MISSING_COUNT)
+
+```

@@ -6,7 +6,7 @@ n(NOM, MOT, nfp) :- nf(NOM, [_, MOT]).
 
 % default to tag
 n2(SUJET, SUJET, GENRE) :- 
-  attr(CLASS, SUJET),
+  attr_v(CLASS, SUJET),
   is_word_type(nom_commun, SUJET),
   domain(CLASS, LIST_NOM),
   nth0(INDEX, LIST_NOM, SUJET),
@@ -28,14 +28,16 @@ nm(mort,[mort,morts]).
 nf(ombre,[ombre,ombres]).
 nf(part,[part,parts]).
 nf(poche,[poche,poches]).
+nf(moto,[moto,motos]).
+mn(velo,[vélo,vélos]).
 nm(professeur,[professeur,professeurs]).
 nf(professeur,[professeur,professeurs]).
 nm(tour,[tour,tours]).
 nf(tour,[tour, tours]).
 nf(fois,[fois,foiss]).
 nf(madame,[madame,madames]).
-nf(paix,[paix,paixs]).
-nf(voix,[voix,voixs]).
+nf(paix,[paix,paix]).
+nf(voix,[voix,voix]).
 nf(affaire,[affaire,affaires]).
 nf(année,[année,années]).
 nf(arme,[arme,armes]).
@@ -142,21 +144,21 @@ nf(tête,[tête,têtes]).
 nf(vérité,[vérité,vérités]).
 nf(ville,[ville,villes]).
 nf(voiture,[voiture,voitures]).
-nm(avis,[avis,aviss]).
-nm(bois,[bois,boiss]).
-nm(bras,[bras,brass]).
-nm(choix,[choix,choixs]).
-nm(corps,[corps,corpss]).
-nm(cours,[cours,courss]).
-nm(gars,[gars,garss]).
-nm(mois,[mois,moiss]).
-nm(pays,[pays,payss]).
-nm(prix,[prix,prixs]).
-nm(propos,[propos,proposs]).
-nm(sens,[sens,senss]).
-nm(temps,[temps,tempss]).
-nm(travers,[travers,traverss]).
-nm(vieux,[vieux,vieuxs]).
+nm(avis,[avis,avis]).
+nm(bois,[bois,bois]).
+nm(bras,[bras,bras]).
+nm(choix,[choix,choix]).
+nm(corps,[corps,corps]).
+nm(cours,[cours,cours]).
+nm(gars,[gars,gars]).
+nm(mois,[mois,mois]).
+nm(pays,[pays,pays]).
+nm(prix,[prix,prix]).
+nm(propos,[propos,propos]).
+nm(sens,[sens,sens]).
+nm(temps,[temps,temps]).
+nm(travers,[travers,travers]).
+nm(vieux,[vieux,vieux]).
 nm(accord,[accord,accords]).
 nm(agent,[agent,agents]).
 nm(amour,[amour,amours]).
@@ -175,6 +177,7 @@ nm(boulot,[boulot,boulots]).
 nm(bout,[bout,bouts]).
 nm(bruit,[bruit,bruits]).
 nm(bureau,[bureau,bureaus]).
+nf(branche,[branche,branches]).
 nm(café,[café,cafés]).
 nm(camp,[camp,camps]).
 nm(capitaine,[capitaine,capitaines]).
@@ -184,6 +187,7 @@ nm(chéri,[chéri,chéris]).
 nm(cheval,[cheval,chevals]).
 nm(cheveu,[cheveu,cheveus]).
 nm(chien,[chien,chiens]).
+nf(chien,[chienne,chiennes]).
 nm(ciel,[ciel,ciels]).
 nm(client,[client,clients]).
 nm(cœur,[cœur,cœurs]).
@@ -263,6 +267,7 @@ nm(passé,[passé,passés]).
 nm(patron,[patron,patrons]).
 nm(père,[père,pères]).
 nm(petit,[petit,petits]).
+nf(taille,[taille,tailles]).
 nm(peuple,[peuple,peuples]).
 nm(pied,[pied,pieds]).
 nm(plaisir,[plaisir,plaisirs]).
